@@ -90,8 +90,6 @@ This compiles the 3 React widgets into self-contained HTML files in `dist/widget
 cp .env.example .env
 ```
 
-The app works without any environment configuration. Gr4vy credentials are optional — see [Gr4vy Payments](#gr4vy-payments-optional) below.
-
 ### 4. Start the server
 
 ```bash
@@ -122,12 +120,14 @@ Copy the HTTPS URL (e.g. `https://abc123.ngrok-free.app`).
    ```
    https://abc123.ngrok-free.app/mcp
    ```
-5. ChatGPT will discover your tools automatically
+5. Create the App
 
 ### 7. Try it out
 
+Start a new conversation (In Developer Mode) and enable the 'Plantly' app. 
+
 Say things like:
-- "Show me your plants"
+- "I'm shopping for a plant for my office, which has a single window facing west. What plants would work best?"
 - "I need something low-maintenance for a shady room"
 - "Add the Monstera to my cart"
 - "Show my cart"
