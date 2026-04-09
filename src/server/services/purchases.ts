@@ -59,7 +59,7 @@ export async function generateEmbedToken(
       unitAmount: item.unitAmount,
     })),
     metadata: {
-      source: "bikez-chatgpt-app",
+      source: "plantly-chatgpt-app",
     },
   });
 

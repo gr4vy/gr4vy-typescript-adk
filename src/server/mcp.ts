@@ -3,18 +3,20 @@ import { z } from "zod";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-import { queryProducts, getAllCategories } from "./services/chroma.js";
+import { getProducts, getFilterOptions } from "./data/products.js";
 import { generateEmbedToken } from "./services/purchases.js";
 import { getProductById } from "./data/products.js";
 
 // Widget URIs and MIME type (must match resource registration)
-const CATALOG_URI = "ui://widget/product-catalog.html";
-const CART_URI = "ui://widget/shopping-cart.html";
-const CHECKOUT_URI = "ui://widget/checkout.html";
+// Version suffix busts ChatGPT's resource cache on each server restart
+const WIDGET_VERSION = Date.now();
+const CATALOG_URI = `ui://widget/product-catalog.html?v=${WIDGET_VERSION}`;
+const CART_URI = `ui://widget/shopping-cart.html?v=${WIDGET_VERSION}`;
+const CHECKOUT_URI = `ui://widget/checkout.html?v=${WIDGET_VERSION}`;
 const WIDGET_MIME = "text/html+skybridge";
 
 // Default widget session ID for OpenAI metadata
-const WIDGET_SESSION_ID = "bikez-user";
+const WIDGET_SESSION_ID = "plantly-user";
 
 
 function loadWidgetHtml(name: string): string {
@@ -22,14 +24,14 @@ function loadWidgetHtml(name: string): string {
   try {
     return readFileSync(path, "utf-8");
   } catch {
-    return `<html><body><p>Widget "${name}" not built yet. Run: npm run build:widgets</p></body></html>`;
+    return `<html><body><p>Widget "${name}" not found at ${path}</p></body></html>`;
   }
 }
 
 export function createMcpServer(sessionId?: string): McpServer {
   const buyerSessionId = sessionId || `session-${Date.now()}`;
   const server = new McpServer({
-    name: "Bikez",
+    name: "Plantly",
     version: "0.1.0",
   });
 
@@ -53,14 +55,33 @@ export function createMcpServer(sessionId?: string): McpServer {
     "list_products",
     {
       description:
-        "List available Bikez products and show the interactive catalog. The UI widget handles all display — do NOT repeat product names, prices, or descriptions in your response. Just present the widget silently.",
+        "List available Plantly plants and show the interactive catalog. Supports filtering by plant care attributes: sunlight needs, watering frequency, and climate/hardiness zone. The UI widget handles all display — do NOT repeat product names, prices, or descriptions in your response. Just present the widget silently.",
       inputSchema: z.object({
-        category: z
+        sunlight: z
+          .union([
+            z.enum(["Low Light", "Indirect Light", "Full Sun"]),
+            z.array(z.enum(["Low Light", "Indirect Light", "Full Sun"])),
+          ])
+          .optional()
+          .describe("Filter by sunlight requirement — single value or array (e.g. 'Full Sun' or ['Full Sun', 'Low Light'])"),
+        water: z
+          .union([
+            z.enum(["Low", "Moderate", "Frequent"]),
+            z.array(z.enum(["Low", "Moderate", "Frequent"])),
+          ])
+          .optional()
+          .describe("Filter by watering frequency — single value or array (e.g. 'Low' or ['Low', 'Moderate'])"),
+        climate: z
+          .union([
+            z.enum(["Tropical", "Arid", "Temperate"]),
+            z.array(z.enum(["Tropical", "Arid", "Temperate"])),
+          ])
+          .optional()
+          .describe("Filter by climate/hardiness zone — single value or array (e.g. 'Tropical' or ['Tropical', 'Arid'])"),
+        search: z
           .string()
           .optional()
-          .describe(
-            "Pass the category when the user indicates a preference. Used to pre-select the filter in the catalog widget (Mountain Bikes, Road Bikes, E-Bikes, Accessories)."
-          ),
+          .describe("Free-text search for semantic matching against plant descriptions"),
       }),
       annotations: {
         readOnlyHint: true,
@@ -74,19 +95,34 @@ export function createMcpServer(sessionId?: string): McpServer {
       },
     },
     async (args) => {
-      console.log(`[list_products] Called (category: ${args.category || "all"})`);
-      const products = await queryProducts(); // Always return all products — widget handles filtering
-      const categories = await getAllCategories();
-      // Normalize category to match canonical casing from categories list
-      const initialFilter = args.category
-        ? categories.find((c) => c.toLowerCase() === args.category!.toLowerCase())
-        : undefined;
-      console.log(`[list_products] Returning ${products.length} products (initialFilter: ${initialFilter || "none"})`);
+      // Normalize filter values to arrays for multi-select support
+      const toArray = (val: string | string[] | undefined): string[] | undefined =>
+        val === undefined ? undefined : Array.isArray(val) ? val : [val];
+
+      const initialFilters: Record<string, string[]> = {};
+      const sunArr = toArray(args.sunlight);
+      const waterArr = toArray(args.water);
+      const climateArr = toArray(args.climate);
+      if (sunArr) initialFilters.sunlight = sunArr;
+      if (waterArr) initialFilters.water = waterArr;
+      if (climateArr) initialFilters.climate = climateArr;
+
+      console.log(`[list_products] Called (filters: ${JSON.stringify(initialFilters)}, search: ${args.search || "none"})`);
+
+      // Return all products — widget handles client-side filtering.
+      const products = getProducts();
+      const filters = getFilterOptions();
+
+      console.log(`[list_products] Returning ${products.length} products`);
       return {
         content: [
-          { type: "text" as const, text: `Showing ${products.length} products` },
+          { type: "text" as const, text: `Showing ${products.length} plants` },
         ],
-        structuredContent: { products, categories, initialFilter },
+        structuredContent: {
+          products,
+          filters,
+          initialFilters: Object.keys(initialFilters).length > 0 ? initialFilters : undefined,
+        },
         _meta: {
           "openai/widgetSessionId": WIDGET_SESSION_ID,
           "openai/widgetAccessible": true,

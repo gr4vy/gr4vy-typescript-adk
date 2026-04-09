@@ -1,9 +1,24 @@
 export interface Product {
   id: string;
   name: string;
-  category: string;
   price: number;
   description: string;
+  image: string;
+  sunlight: "Low Light" | "Indirect Light" | "Full Sun";
+  water: "Low" | "Moderate" | "Frequent";
+  climate: "Tropical" | "Arid" | "Temperate";
+}
+
+export interface FilterOptions {
+  sunlight: string[];
+  water: string[];
+  climate: string[];
+}
+
+export interface ActiveFilters {
+  sunlight?: string[];
+  water?: string[];
+  climate?: string[];
 }
 
 export interface CartItem {
@@ -25,8 +40,8 @@ export interface EmbedConfig {
 
 export interface CatalogData {
   products: Product[];
-  categories: string[];
-  initialFilter?: string;
+  filters: FilterOptions;
+  initialFilters?: ActiveFilters;
 }
 
 export interface CartData {

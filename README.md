@@ -1,6 +1,6 @@
-# Bikez - ChatGPT MCP App
+# Plantly - ChatGPT MCP App
 
-A ChatGPT MCP app for **Bikez**, a fictional online bicycle store. Browse bikes, manage a cart, and checkout with Gr4vy payments — all within ChatGPT's conversational UI.
+A ChatGPT MCP app for **Plantly**, a fictional online plant store. Browse plants, manage a cart, and checkout with Gr4vy payments — all within ChatGPT's conversational UI.
 
 Built with TypeScript, React, Express, and ChromaDB.
 
@@ -40,7 +40,7 @@ ChatGPT ─── (HTTPS) ──→ ngrok tunnel ──→ Express Server (:3000
 ### 1. Install dependencies
 
 ```bash
-cd agentic-bikez
+cd agentic-plantly
 npm install
 ```
 
@@ -94,9 +94,9 @@ Copy the HTTPS URL (e.g., `https://abc123.ngrok-free.app`).
 ### 7. Try it out
 
 Say things like:
-- "Show me your bikes"
-- "What mountain bikes do you have?"
-- "Add the Trail Blazer 29er to my cart"
+- "Show me your plants"
+- "What top rated plants do you have?"
+- "Add the Monstera Deliciosa to my cart"
 - "Show my cart"
 - "I'd like to checkout"
 
@@ -119,8 +119,8 @@ npm run dev
 ```
 
 With ChromaDB, users can search semantically:
-- "Show me bikes for rough terrain" → Mountain Bikes
-- "I need something for my commute" → E-Bikes, Road Bikes
+- "Show me low-maintenance plants" → Aloe Vera, Snake Plant
+- "I need something for a shady room" → Peace Lily, Golden Pothos
 
 ## Gr4vy Payments (Optional)
 
@@ -149,14 +149,14 @@ Without Gr4vy credentials, the checkout widget shows a placeholder and the `pay`
 ## Project Structure
 
 ```
-agentic-bikez/
+agentic-plantly/
 ├── src/
 │   ├── server/
 │   │   ├── index.ts          # Express + MCP transport
 │   │   ├── mcp.ts            # McpServer: tools & resources
 │   │   ├── types.ts          # TypeScript interfaces
 │   │   ├── data/
-│   │   │   ├── products.ts   # 14 bicycle products
+│   │   │   ├── products.ts   # 9 plant products
 │   │   │   ├── cards.ts      # Mock payment cards
 │   │   │   └── seed.ts       # ChromaDB seeder
 │   │   └── services/
@@ -178,10 +178,9 @@ agentic-bikez/
 
 | Category | Products |
 |----------|----------|
-| Mountain Bikes | Trail Blazer 29er ($899), Rock Hopper Pro ($649), Summit Ridge ($1,299), Dirt Devil Jr ($349) |
-| Road Bikes | Aero Sprinter ($1,199), Gran Fondo Touring ($799), Velocity Ti ($2,499) |
-| E-Bikes | Volt Cruiser ($1,899), Thunder Commuter ($1,499), Peak Power MTB-E ($2,799) |
-| Accessories | Carbon Helmet Pro ($89), Multi-Tool Kit ($24), Floor Pump Elite ($49), Waterproof Panniers ($119) |
+| Top Rated | Aloe Vera ($14.99), Monstera Deliciosa ($34.99), Snake Plant ($24.99) |
+| Essentials | Golden Pothos ($12.99), Peace Lily ($18.99), Barrel Cactus ($9.99) |
+| Accessories | Pruning Shears ($16.99), Watering Can ($22.99), Ceramic Planter Pot ($19.99) |
 
 ## Tech Stack
 

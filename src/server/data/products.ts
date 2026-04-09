@@ -1,140 +1,188 @@
 import type { Product } from "../types.js";
 
 export const PRODUCTS: Product[] = [
-  // Mountain Bikes
   {
-    id: "trail-blazer-29er",
-    name: "Trail Blazer 29er",
-    category: "Mountain Bikes",
-    price: 899.99,
+    id: "aloe-vera",
+    name: "Aloe Vera",
+    price: 14.99,
     description:
-      "Full-suspension 29er with 130mm travel, perfect for technical trails and all-day adventures.",
+      "Low-maintenance succulent with air-purifying qualities",
+    image:
+      "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=400&h=300&fit=crop",
+    sunlight: "Full Sun",
+    water: "Low",
+    climate: "Arid",
   },
   {
-    id: "rock-hopper-pro",
-    name: "Rock Hopper Pro",
-    category: "Mountain Bikes",
-    price: 649.99,
+    id: "monstera",
+    name: "Monstera Deliciosa",
+    price: 34.99,
     description:
-      "Hardtail aluminum frame with hydraulic disc brakes and a RockShox fork for trail riding.",
+      "Iconic split-leaf tropical plant, thrives in indirect light",
+    image:
+      "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=400&h=300&fit=crop",
+    sunlight: "Indirect Light",
+    water: "Moderate",
+    climate: "Tropical",
   },
   {
-    id: "summit-ridge",
-    name: "Summit Ridge",
-    category: "Mountain Bikes",
-    price: 1299.99,
-    description:
-      "Carbon fiber enduro bike with 160mm travel, dropper post, and aggressive geometry.",
-  },
-  {
-    id: "dirt-devil-jr",
-    name: "Dirt Devil Jr",
-    category: "Mountain Bikes",
-    price: 349.99,
-    description:
-      "Youth mountain bike with 24-inch wheels, front suspension, and lightweight alloy frame.",
-  },
-
-  // Road Bikes
-  {
-    id: "aero-sprinter",
-    name: "Aero Sprinter",
-    category: "Road Bikes",
-    price: 1199.99,
-    description:
-      "Aerodynamic carbon frame with Shimano 105 groupset, built for speed and race-day performance.",
-  },
-  {
-    id: "gran-fondo-touring",
-    name: "Gran Fondo Touring",
-    category: "Road Bikes",
-    price: 799.99,
-    description:
-      "Endurance geometry with disc brakes and wider tire clearance, built for long-distance comfort.",
-  },
-  {
-    id: "velocity-ti",
-    name: "Velocity Ti",
-    category: "Road Bikes",
-    price: 2499.99,
-    description:
-      "Titanium frame with Ultegra Di2 electronic shifting — the ultimate ride quality.",
-  },
-
-  // E-Bikes
-  {
-    id: "volt-cruiser",
-    name: "Volt Cruiser",
-    category: "E-Bikes",
-    price: 1899.99,
-    description:
-      "500W mid-drive motor with 60-mile range and step-through frame for easy mounting.",
-  },
-  {
-    id: "thunder-commuter",
-    name: "Thunder Commuter",
-    category: "E-Bikes",
-    price: 1499.99,
-    description:
-      "Integrated lights, fenders, and rear rack with a 350W hub motor for daily commuting.",
-  },
-  {
-    id: "peak-power-mtb-e",
-    name: "Peak Power MTB-E",
-    category: "E-Bikes",
-    price: 2799.99,
-    description:
-      "Full-suspension e-mountain bike with Bosch CX motor and 625Wh battery for epic rides.",
-  },
-
-  // Accessories
-  {
-    id: "carbon-helmet-pro",
-    name: "Carbon Helmet Pro",
-    category: "Accessories",
-    price: 89.99,
-    description:
-      "MIPS-equipped lightweight road helmet with aerodynamic vents and adjustable fit system.",
-  },
-  {
-    id: "multi-tool-kit",
-    name: "Multi-Tool Kit",
-    category: "Accessories",
+    id: "snake-plant",
+    name: "Snake Plant",
     price: 24.99,
     description:
-      "16-function bicycle multi-tool with chain breaker, hex keys, and Torx drivers.",
+      "Nearly indestructible, perfect for beginners and low light",
+    image:
+      "https://images.unsplash.com/photo-1572688484438-313a56e6f908?w=400&h=300&fit=crop",
+    sunlight: "Low Light",
+    water: "Low",
+    climate: "Temperate",
   },
   {
-    id: "floor-pump-elite",
-    name: "Floor Pump Elite",
-    category: "Accessories",
-    price: 49.99,
+    id: "pothos",
+    name: "Golden Pothos",
+    price: 12.99,
     description:
-      "High-pressure floor pump with digital gauge, compatible with Presta and Schrader valves.",
+      "Fast-growing trailing vine, great for shelves and hangers",
+    image:
+      "https://images.unsplash.com/photo-1637967886160-fd78dc3ce3f5?w=400&h=300&fit=crop",
+    sunlight: "Low Light",
+    water: "Moderate",
+    climate: "Tropical",
   },
   {
-    id: "waterproof-panniers",
-    name: "Waterproof Panniers",
-    category: "Accessories",
-    price: 119.99,
+    id: "peace-lily",
+    name: "Peace Lily",
+    price: 18.99,
     description:
-      "Roll-top waterproof pannier bags with 25L capacity per side, quick-release mounting.",
+      "Elegant blooming plant that thrives in shade",
+    image:
+      "https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?w=400&h=300&fit=crop",
+    sunlight: "Low Light",
+    water: "Moderate",
+    climate: "Tropical",
+  },
+  {
+    id: "cactus",
+    name: "Barrel Cactus",
+    price: 9.99,
+    description:
+      "Compact desert cactus, needs minimal watering",
+    image:
+      "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=400&h=300&fit=crop",
+    sunlight: "Full Sun",
+    water: "Low",
+    climate: "Arid",
+  },
+  {
+    id: "fiddle-leaf-fig",
+    name: "Fiddle Leaf Fig",
+    price: 29.99,
+    description:
+      "Dramatic large-leaf tree, a stylish statement plant",
+    image:
+      "https://images.unsplash.com/photo-1545241047-6083a3684587?w=400&h=300&fit=crop",
+    sunlight: "Indirect Light",
+    water: "Moderate",
+    climate: "Temperate",
+  },
+  {
+    id: "boston-fern",
+    name: "Boston Fern",
+    price: 16.99,
+    description:
+      "Lush hanging fern that loves humidity and moisture",
+    image:
+      "https://images.unsplash.com/photo-1597055181321-e0d5e5cf25cf?w=400&h=300&fit=crop",
+    sunlight: "Indirect Light",
+    water: "Frequent",
+    climate: "Tropical",
+  },
+  {
+    id: "lavender",
+    name: "Lavender",
+    price: 11.99,
+    description:
+      "Fragrant flowering herb, loves sunshine and well-drained soil",
+    image:
+      "https://images.unsplash.com/photo-1611909023032-2d6b3134ecba?w=400&h=300&fit=crop",
+    sunlight: "Full Sun",
+    water: "Moderate",
+    climate: "Temperate",
+  },
+  {
+    id: "calathea",
+    name: "Calathea",
+    price: 22.99,
+    description:
+      "Striking patterned leaves that fold up at night",
+    image:
+      "https://images.unsplash.com/photo-1637967886160-fd78dc3ce3f5?w=400&h=300&fit=crop",
+    sunlight: "Low Light",
+    water: "Frequent",
+    climate: "Tropical",
+  },
+  {
+    id: "rosemary",
+    name: "Rosemary",
+    price: 8.99,
+    description:
+      "Aromatic culinary herb, thrives in warm sunny spots",
+    image:
+      "https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=400&h=300&fit=crop",
+    sunlight: "Full Sun",
+    water: "Frequent",
+    climate: "Temperate",
+  },
+  {
+    id: "jade-plant",
+    name: "Jade Plant",
+    price: 19.99,
+    description:
+      "Hardy succulent with thick glossy leaves, symbol of good luck",
+    image:
+      "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=400&h=300&fit=crop",
+    sunlight: "Indirect Light",
+    water: "Low",
+    climate: "Arid",
   },
 ];
 
-export function getProducts(category?: string): Product[] {
-  if (category) {
-    return PRODUCTS.filter(
-      (p) => p.category.toLowerCase() === category.toLowerCase()
-    );
-  }
-  return PRODUCTS;
+export interface ProductFilters {
+  sunlight?: string | string[];
+  water?: string | string[];
+  climate?: string | string[];
+}
+
+function matchesFilter(value: string, filter?: string | string[]): boolean {
+  if (!filter) return true;
+  if (Array.isArray(filter)) return filter.length === 0 || filter.includes(value);
+  return value === filter;
+}
+
+export function getProducts(filters?: ProductFilters): Product[] {
+  if (!filters) return PRODUCTS;
+  return PRODUCTS.filter((p) => {
+    if (!matchesFilter(p.sunlight, filters.sunlight)) return false;
+    if (!matchesFilter(p.water, filters.water)) return false;
+    if (!matchesFilter(p.climate, filters.climate)) return false;
+    return true;
+  });
 }
 
 export function getProductById(id: string): Product | undefined {
   return PRODUCTS.find((p) => p.id === id);
 }
 
-export function getCategories(): string[] {
-  return [...new Set(PRODUCTS.map((p) => p.category))].sort();
+export interface FilterOptions {
+  sunlight: string[];
+  water: string[];
+  climate: string[];
+}
+
+export function getFilterOptions(): FilterOptions {
+  return {
+    sunlight: [...new Set(PRODUCTS.map((p) => p.sunlight))].sort(),
+    water: [...new Set(PRODUCTS.map((p) => p.water))].sort(),
+    climate: [...new Set(PRODUCTS.map((p) => p.climate))].sort(),
+  };
 }

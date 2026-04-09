@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { viteSingleFile } from "vite-plugin-singlefile";
-import tailwindcss from "@tailwindcss/vite";
 import { resolve } from "path";
 
 // Build target is set via WIDGET env var (e.g., "product-catalog")
@@ -19,7 +18,7 @@ export default defineConfig(
   widget
     ? {
         // Single widget build (self-contained HTML)
-        plugins: [react(), tailwindcss(), viteSingleFile()],
+        plugins: [react(), viteSingleFile()],
         root: `src/widgets/${widget}`,
         build: {
           outDir: resolve(__dirname, "dist/widgets"),
@@ -31,7 +30,7 @@ export default defineConfig(
       }
     : {
         // Multi-page fallback (no inlining)
-        plugins: [react(), tailwindcss()],
+        plugins: [react()],
         root: "src/widgets",
         build: {
           outDir: resolve(__dirname, "dist/widgets"),

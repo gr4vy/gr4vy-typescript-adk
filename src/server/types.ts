@@ -1,10 +1,12 @@
 export interface Product {
   id: string;
   name: string;
-  category: string;
   price: number;
   description: string;
-  image?: string;
+  image: string;
+  sunlight: "Low Light" | "Indirect Light" | "Full Sun";
+  water: "Low" | "Moderate" | "Frequent";
+  climate: "Tropical" | "Arid" | "Temperate";
 }
 
 export interface CartItem {

@@ -5,17 +5,11 @@ import { resolve } from "path";
 
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createMcpServer } from "./mcp.js";
-import { initChroma } from "./services/chroma.js";
 import { handleWebhook } from "./services/purchases.js";
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 
 async function main() {
-  // Initialize ChromaDB (auto-seeds if empty)
-  console.log("Initializing ChromaDB...");
-  await initChroma();
-  console.log("ChromaDB ready.");
-
   const app = express();
   // Parse JSON for all routes except webhooks (which need raw text for signature verification)
   app.use((req, res, next) => {
@@ -105,7 +99,7 @@ async function main() {
 
   // Health check (no sensitive data exposed)
   app.get("/health", (_req, res) => {
-    res.json({ status: "ok", name: "Bikez MCP Server" });
+    res.json({ status: "ok", name: "Plantly MCP Server" });
   });
 
   // Debug endpoint - only available in development
@@ -161,7 +155,7 @@ async function main() {
   }, SESSION_TTL_MS);
 
   app.listen(PORT, () => {
-    console.log(`\nBikez MCP Server running at http://localhost:${PORT}`);
+    console.log(`\nPlantly MCP Server running at http://localhost:${PORT}`);
     console.log(`  MCP endpoint: http://localhost:${PORT}/mcp`);
     console.log(`  Widgets:      http://localhost:${PORT}/widgets/`);
     console.log(`  Health:       http://localhost:${PORT}/health`);

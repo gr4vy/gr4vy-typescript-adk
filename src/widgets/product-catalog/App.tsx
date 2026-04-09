@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import type { Product, CartItem, CatalogData } from "../shared/types";
+import { useState, useEffect } from "react";
+import type { Product, CartItem, CatalogData, FilterOptions, ActiveFilters } from "../shared/types";
 import {
   waitForToolOutput,
   getWidgetState,
@@ -12,55 +12,85 @@ interface CartState {
   [productId: string]: number;
 }
 
+function updateModelContext(products: Product[], cart: CartState) {
+  try {
+    const items = Object.entries(cart)
+      .map(([id, qty]) => {
+        const p = products.find((x) => x.id === id);
+        if (!p) return null;
+        return { id, name: p.name, price: p.price, quantity: qty };
+      })
+      .filter(Boolean) as { id: string; name: string; price: number; quantity: number }[];
+    const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    window.parent.postMessage(
+      {
+        jsonrpc: "2.0",
+        method: "ui/update-model-context",
+        params: { cart: items, total },
+      },
+      "*"
+    );
+  } catch (_e) {
+    // ignore
+  }
+}
+
 export function App() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ sunlight: [], water: [], climate: [] });
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({});
   const [cart, setCart] = useState<CartState>({});
-  const [loading, setLoading] = useState(true);
+
+  function applyCatalogData(data: CatalogData) {
+    console.log(`[Plantly] Received ${data?.products?.length ?? 0} products, initialFilters:`, data?.initialFilters);
+    if (data?.products) setProducts(data.products);
+    if (data?.filters) setFilterOptions(data.filters);
+    if (data?.initialFilters) {
+      // Normalize initialFilters: wrap single strings in arrays for backward compat
+      const normalized: ActiveFilters = {};
+      for (const key of ["sunlight", "water", "climate"] as const) {
+        const val = (data.initialFilters as any)[key];
+        if (val !== undefined) {
+          normalized[key] = Array.isArray(val) ? val : [val];
+        }
+      }
+      setActiveFilters(normalized);
+    }
+  }
 
   useEffect(() => {
-    // Restore cart from widget state
     const saved = getWidgetState<{ cart: CartState }>();
     if (saved?.cart) setCart(saved.cart);
 
-    // Wait for initial tool output
-    waitForToolOutput<CatalogData>().then((data) => {
-      if (data?.products) setProducts(data.products);
-      if (data?.categories) setCategories(data.categories);
-      if (data?.initialFilter) {
-        const match = data.categories?.find(
-          (c) => c.toLowerCase() === data.initialFilter!.toLowerCase()
-        );
-        if (match) setActiveFilter(match);
-      }
-      setLoading(false);
-    });
-
-    // Listen for subsequent tool updates
-    const unsub = onToolResult<CatalogData>((data) => {
-      if (data?.products) setProducts(data.products);
-      if (data?.categories) setCategories(data.categories);
-      if (data?.initialFilter) {
-        const match = data.categories?.find(
-          (c) => c.toLowerCase() === data.initialFilter!.toLowerCase()
-        );
-        if (match) setActiveFilter(match);
-      }
-    });
-
+    waitForToolOutput<CatalogData>().then(applyCatalogData);
+    const unsub = onToolResult<CatalogData>(applyCatalogData);
     return unsub;
   }, []);
 
-  // Persist cart on change
   useEffect(() => {
     setWidgetState({ cart });
-  }, [cart]);
+    updateModelContext(products, cart);
+  }, [cart, products]);
 
-  const filteredProducts =
-    activeFilter === "All"
-      ? products
-      : products.filter((p) => p.category === activeFilter);
+  const filteredProducts = products.filter((p) => {
+    if (activeFilters.sunlight?.length && !activeFilters.sunlight.includes(p.sunlight)) return false;
+    if (activeFilters.water?.length && !activeFilters.water.includes(p.water)) return false;
+    if (activeFilters.climate?.length && !activeFilters.climate.includes(p.climate)) return false;
+    return true;
+  });
+
+  function toggleFilter(dimension: keyof ActiveFilters, value: string) {
+    setActiveFilters((prev) => {
+      const current = prev[dimension] || [];
+      const next = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      return {
+        ...prev,
+        [dimension]: next.length > 0 ? next : undefined,
+      };
+    });
+  }
 
   function changeQty(productId: string, delta: number) {
     setCart((prev) => {
@@ -74,288 +104,179 @@ export function App() {
     });
   }
 
+  function removeItem(productId: string) {
+    setCart((prev) => {
+      const { [productId]: _, ...rest } = prev;
+      return rest;
+    });
+  }
+
   function getCartItems(): CartItem[] {
     return Object.entries(cart)
       .map(([id, qty]) => {
         const p = products.find((x) => x.id === id);
         if (!p) return null;
-        return {
-          product_id: id,
-          name: p.name,
-          price: p.price,
-          quantity: qty,
-        };
+        return { product_id: id, name: p.name, price: p.price, quantity: qty };
       })
       .filter(Boolean) as CartItem[];
   }
 
   const cartItems = getCartItems();
-  const cartTotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   function handleCheckout() {
-    const items = getCartItems();
     sendFollowUp(
-      `Call the start_checkout tool with these items: ${JSON.stringify(items)}`
+      `Call the start_checkout tool with these items: ${JSON.stringify(cartItems)}`
     );
   }
 
-  if (loading) {
+  function renderFilterGroup(label: string, dimension: keyof ActiveFilters, values: string[]) {
+    if (values.length === 0) return null;
     return (
-      <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>
-        Loading products...
+      <div className="filter-group" key={dimension}>
+        <span className="filter-group-label">{label}</span>
+        <div className="filter-group-buttons">
+          {values.map((val) => (
+            <button
+              key={val}
+              onClick={() => toggleFilter(dimension, val)}
+              className={`filter-btn${activeFilters[dimension]?.includes(val) ? " active" : ""}`}
+            >
+              {val}
+            </button>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "12px 16px", maxWidth: 600 }}>
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 12,
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a" }}>
-          Bikez Catalog
-        </h2>
-        {cartCount > 0 && (
-          <span
-            style={{
-              background: "#2563eb",
-              color: "#fff",
-              borderRadius: 12,
-              padding: "2px 10px",
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            {cartCount} in cart
-          </span>
-        )}
+    <>
+      <div className="header">
+        <h1>Plantly</h1>
+        <p>Find the perfect plant for your space</p>
       </div>
 
-      {/* Category Filters */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-        {["All", ...categories].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveFilter(cat)}
-            style={{
-              padding: "4px 12px",
-              borderRadius: 16,
-              border: "1px solid #d1d5db",
-              background: activeFilter === cat ? "#2563eb" : "#fff",
-              color: activeFilter === cat ? "#fff" : "#374151",
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            {cat}
-          </button>
-        ))}
+      <div className="filters">
+        {renderFilterGroup("Sunlight", "sunlight", filterOptions.sunlight)}
+        {renderFilterGroup("Water", "water", filterOptions.water)}
+        {renderFilterGroup("Climate", "climate", filterOptions.climate)}
       </div>
 
-      {/* Product Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-          gap: 10,
-          marginBottom: 16,
-        }}
-      >
+      <div className="grid">
         {filteredProducts.map((product) => {
           const qty = cart[product.id] || 0;
           return (
-            <div
-              key={product.id}
-              style={{
-                border: "1px solid #e5e7eb",
-                borderRadius: 10,
-                padding: 12,
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 11,
-                  color: "#6b7280",
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                {product.category}
-              </span>
-              <div style={{ fontWeight: 600, fontSize: 14, color: "#0f172a" }}>
-                {product.name}
+            <div key={product.id} className="card">
+              <img className="card-image" src={product.image} alt={product.name} />
+              <div className="card-name">{product.name}</div>
+              <div className="card-desc">{product.description}</div>
+              <div className="attribute-tags">
+                <span className="attribute-tag sunlight-tag">{product.sunlight}</span>
+                <span className="attribute-tag water-tag">{product.water} Water</span>
+                <span className="attribute-tag climate-tag">{product.climate}</span>
               </div>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  lineHeight: 1.4,
-                  flex: 1,
-                }}
-              >
-                {product.description.length > 80
-                  ? product.description.slice(0, 80) + "..."
-                  : product.description}
-              </div>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: 15,
-                  color: "#2563eb",
-                }}
-              >
-                ${product.price.toFixed(2)}
-              </div>
-              {qty === 0 ? (
-                <button
-                  onClick={() => changeQty(product.id, 1)}
-                  style={{
-                    padding: "6px 0",
-                    borderRadius: 6,
-                    border: "none",
-                    background: "#2563eb",
-                    color: "#fff",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Add to Cart
-                </button>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 10,
-                  }}
-                >
-                  <button
-                    onClick={() => changeQty(product.id, -1)}
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 6,
-                      border: "1px solid #d1d5db",
-                      background: "#fff",
-                      cursor: "pointer",
-                      fontSize: 16,
-                      fontWeight: 700,
-                    }}
-                  >
-                    -
-                  </button>
-                  <span style={{ fontWeight: 600, fontSize: 14 }}>{qty}</span>
+              <div className="card-footer">
+                <span className="card-price">${product.price.toFixed(2)}</span>
+                {qty === 0 ? (
                   <button
                     onClick={() => changeQty(product.id, 1)}
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 6,
-                      border: "1px solid #d1d5db",
-                      background: "#fff",
-                      cursor: "pointer",
-                      fontSize: 16,
-                      fontWeight: 700,
-                    }}
+                    className="add-btn"
                   >
-                    +
+                    Add
                   </button>
-                </div>
-              )}
+                ) : (
+                  <div className="qty-row">
+                    <button
+                      onClick={() => changeQty(product.id, -1)}
+                      className="qty-btn"
+                    >
+                      &minus;
+                    </button>
+                    <span className="qty-num">{qty}</span>
+                    <button
+                      onClick={() => changeQty(product.id, 1)}
+                      className="qty-btn"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Cart Summary */}
+      {filteredProducts.length === 0 && (
+        <div className="empty">No plants match your filters.</div>
+      )}
+
       {cartItems.length > 0 && (
-        <div
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 10,
-            padding: 14,
-            background: "#f8fafc",
-          }}
-        >
-          <div
-            style={{
-              fontWeight: 600,
-              fontSize: 14,
-              marginBottom: 8,
-              color: "#0f172a",
-            }}
-          >
-            Cart ({cartCount} item{cartCount !== 1 ? "s" : ""})
-          </div>
-          {cartItems.map((item) => (
-            <div
-              key={item.product_id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 13,
-                marginBottom: 4,
-                color: "#374151",
-              }}
-            >
-              <span>
-                {item.name} x{item.quantity}
-              </span>
-              <span style={{ fontWeight: 600 }}>
-                ${(item.price * item.quantity).toFixed(2)}
-              </span>
+        <div className="cart-section">
+          <div className="cart-header">
+            <div className="cart-header-left">
+              <span className="cart-header-icon">&#128722;</span>
+              <span className="cart-header-title">Your Cart</span>
             </div>
-          ))}
-          <div
-            style={{
-              borderTop: "1px solid #e5e7eb",
-              marginTop: 8,
-              paddingTop: 8,
-              display: "flex",
-              justifyContent: "space-between",
-              fontWeight: 700,
-              fontSize: 14,
-            }}
-          >
-            <span>Total</span>
-            <span style={{ color: "#2563eb" }}>${cartTotal.toFixed(2)}</span>
+            <span className="cart-header-badge">
+              {cartCount} item{cartCount !== 1 ? "s" : ""}
+            </span>
           </div>
-          <button
-            onClick={handleCheckout}
-            style={{
-              width: "100%",
-              marginTop: 10,
-              padding: "8px 0",
-              borderRadius: 8,
-              border: "none",
-              background: "#16a34a",
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Proceed to Checkout
-          </button>
+          <div className="cart-items">
+            {cartItems.map((item) => (
+              <div key={item.product_id} className="cart-item">
+                <img
+                  className="cart-item-image"
+                  src={products.find((p) => p.id === item.product_id)?.image}
+                  alt={item.name}
+                />
+                <div className="cart-item-details">
+                  <div className="cart-item-name">{item.name}</div>
+                  <div className="cart-item-price">
+                    ${item.price.toFixed(2)} each
+                  </div>
+                </div>
+                <div className="cart-item-controls">
+                  <button
+                    className="cart-item-qty-btn"
+                    onClick={() => changeQty(item.product_id, -1)}
+                  >
+                    &minus;
+                  </button>
+                  <span className="cart-item-qty">{item.quantity}</span>
+                  <button
+                    className="cart-item-qty-btn"
+                    onClick={() => changeQty(item.product_id, 1)}
+                  >
+                    +
+                  </button>
+                </div>
+                <div className="cart-item-subtotal">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </div>
+                <button
+                  className="cart-item-delete"
+                  onClick={() => removeItem(item.product_id)}
+                  title="Remove"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="cart-footer">
+            <div className="cart-total-row">
+              <span className="cart-total-label">Total</span>
+              <span className="cart-total-amount">${cartTotal.toFixed(2)}</span>
+            </div>
+            <button onClick={handleCheckout} className="checkout-btn">
+              Proceed to Checkout
+            </button>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

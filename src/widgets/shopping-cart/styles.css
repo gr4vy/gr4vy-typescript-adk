@@ -1,13 +1,163 @@
-@import "tailwindcss";
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
-  background: #ffffff;
-  color: #1a1a2e;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f8faf8;
+  color: #1a2e1a;
+  padding: 16px;
 }
-
-* {
-  box-sizing: border-box;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a5c2a;
+}
+.header .badge {
+  background: #1a5c2a;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-radius: 12px;
+  border: 1.5px solid #e2ece2;
+  padding: 12px 14px;
+  transition: box-shadow 0.2s;
+}
+.item:hover {
+  box-shadow: 0 2px 8px rgba(26, 92, 42, 0.08);
+}
+.item-info {
+  flex: 1;
+}
+.item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2e1a;
+}
+.item-price {
+  font-size: 12px;
+  color: #6b9b6b;
+  margin-top: 2px;
+}
+.item-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid #c8dcc8;
+  background: white;
+  color: #1a5c2a;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.qty-btn:hover {
+  background: #edf5ed;
+}
+.qty-btn:active {
+  transform: scale(0.92);
+}
+.qty {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+.item-subtotal {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a5c2a;
+  min-width: 60px;
+  text-align: right;
+}
+.divider {
+  border: none;
+  border-top: 1.5px solid #e2ece2;
+  margin: 4px 0;
+}
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+.total-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a2e1a;
+}
+.total-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a5c2a;
+}
+.checkout-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #1a5c2a;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+.checkout-btn:hover {
+  background: #14461f;
+}
+.checkout-btn:active {
+  transform: scale(0.98);
+}
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7a8a7a;
+}
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.empty p {
+  font-size: 14px;
+}
+.browse-btn {
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1.5px solid #c8dcc8;
+  background: white;
+  color: #1a5c2a;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.browse-btn:hover {
+  background: #edf5ed;
 }
