@@ -23,6 +23,18 @@ async function main() {
     express.json()(req, res, next);
   });
 
+  // Debug middleware: log full MCP request headers and body when DEBUG_MCP=true
+  app.use("/mcp", (req, _res, next) => {
+    if (process.env.DEBUG_MCP === "true") {
+      const separator = `[DEBUG MCP] ${"─".repeat(20)} ${req.method} /mcp ${"─".repeat(20)}`;
+      console.log(separator);
+      console.log("[DEBUG MCP] Headers:", JSON.stringify(req.headers, null, 2));
+      console.log("[DEBUG MCP] Body:", JSON.stringify(req.body, null, 2));
+      console.log(`[DEBUG MCP] ${"─".repeat(56)}`);
+    }
+    next();
+  });
+
   // Serve built widget HTML files
   const widgetsDir = resolve(process.cwd(), "dist", "widgets");
   app.use("/widgets", express.static(widgetsDir));
@@ -153,6 +165,9 @@ async function main() {
     console.log(`  MCP endpoint: http://localhost:${PORT}/mcp`);
     console.log(`  Widgets:      http://localhost:${PORT}/widgets/`);
     console.log(`  Health:       http://localhost:${PORT}/health`);
+    if (process.env.DEBUG_MCP === "true") {
+      console.log(`  DEBUG MODE:  enabled (full MCP request logging)`);
+    }
     console.log(
       `\nTo expose via ngrok: ngrok http ${PORT}`
     );
