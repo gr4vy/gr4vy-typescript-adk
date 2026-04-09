@@ -66,7 +66,7 @@ Widgets are built as self-contained HTML files using Vite + `vite-plugin-singlef
 
 - [Node.js](https://nodejs.org/) >= 18
 - [ngrok](https://ngrok.com/) (free account) for exposing your local server to ChatGPT
-- (Optional) [Gr4vy](https://gr4vy.com/) account for real payment processing
+- [Gr4vy](https://gr4vy.com/) account for real payment processing
 
 ## Quick Start
 
