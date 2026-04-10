@@ -1,8 +1,10 @@
-# Plantly — ChatGPT MCP E-Commerce App
+# Agentic Development Kit (ADK) - TypeScript
 
-An example e-commerce store built as a **ChatGPT MCP app**. Plantly is a fictional online plant shop where users can browse products, manage a shopping cart, and check out with real payments — all through interactive UI widgets rendered directly inside ChatGPT conversations.
+A sample agentic e-commerce application that demonstrates how to build a **ChatGPT MCP app**. Users can browse products, manage a shopping cart, and check out with real payments — all through interactive UI widgets rendered directly inside ChatGPT conversations.
 
 Built with TypeScript, React, Express, and the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/).
+
+> **Learn more:** Check out our full guide on building agentic applications for a step-by-step walkthrough. *(Link coming soon)*
 
 ## Architecture
 
@@ -210,7 +212,7 @@ Without Gr4vy credentials, the checkout widget will show an error message instea
 ## Project Structure
 
 ```
-agentic-plantly-ts/
+gr4vy-typescript-adk/
 ├── src/
 │   ├── server/
 │   │   ├── index.ts              # Express server + MCP transport setup
@@ -268,3 +270,7 @@ agentic-plantly-ts/
 - **Validation**: Zod
 - **Payments**: [Gr4vy](https://gr4vy.com/) Embed + @gr4vy/sdk (optional)
 - **Tunnel**: ngrok
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
