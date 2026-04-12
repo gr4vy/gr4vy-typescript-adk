@@ -4,7 +4,7 @@ A sample agentic e-commerce application that demonstrates how to build a **ChatG
 
 Built with TypeScript, React, Express, and the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/).
 
-> **Learn more:** Check out our full guide on building agentic applications for a step-by-step walkthrough. *(Link coming soon)*
+> **Learn more:** Check out [our full guide](http://docs.gr4vy.com/guides/payments/adk/overview) on building agentic applications for a step-by-step walkthrough.
 
 ## Architecture
 
